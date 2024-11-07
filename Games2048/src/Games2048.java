@@ -49,9 +49,9 @@ public class Games2048 extends JPanel {
 
         if(value!=0) {
             FontMetrics fontMetrics=g.getFontMetrics();
-            fontMetrics.stringHights();
-            fontMetrics.stringWidth();
-            g.drawString(String.valueOf(value),x+SQUARE_A/2,y+SQUARE_A/2);
+            int textX=x+(SQUARE_A-fontMetrics.stringWidth(String.valueOf(value)))/2;
+            int textY=y+(SQUARE_A-fontMetrics.getHeight())/2+fontMetrics.getAscent();
+            g.drawString(String.valueOf(value),textX,textY);
         }
     }
 
