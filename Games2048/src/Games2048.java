@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.geom.AffineTransform;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -22,14 +21,18 @@ public class Games2048 extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                switch (e.getKeyCode()){
-                    case KeyEvent.VK_UP, KeyEvent.VK_W -> moveUP();
-                    case KeyEvent.VK_DOWN, KeyEvent.VK_S -> moveDown();
-                    case KeyEvent.VK_LEFT, KeyEvent.VK_A -> moveLeft();
-                    case KeyEvent.VK_RIGHT, KeyEvent.VK_D -> moveRight();
+                if(!win && !lose){
+                    switch (e.getKeyCode()){
+                        case KeyEvent.VK_UP, KeyEvent.VK_W -> moveUP();
+                        case KeyEvent.VK_DOWN, KeyEvent.VK_S -> moveDown();
+                        case KeyEvent.VK_LEFT, KeyEvent.VK_A -> moveLeft();
+                        case KeyEvent.VK_RIGHT, KeyEvent.VK_D -> moveRight();
+                    }
+                    repaint();
+                    spawnTile();
+                    checkGameState();
                 }
-                repaint();
-                spawnTile();
+
             }
         });
         spawnTile();
@@ -131,9 +134,21 @@ public class Games2048 extends JPanel {
                     }
                 }
             }
+            lose = true;
         }
     }
     private void spawnTile() {
+        int cnt=0;
+        for(int row=0; row<SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                if (grid[row][col] != 0) {
+                    cnt++;
+                }
+            }
+        }
+        if(cnt == SIZE * SIZE){
+            return;
+        }
         int x;
         int y;
         do {
@@ -154,8 +169,15 @@ public class Games2048 extends JPanel {
                 drawTile(g,grid[row][col], col*SQUARE_A, row*SQUARE_A);
             }
         }
-
+        g.setColor(Color.BLACK);
+        if(win){
+            g.drawString("You Win!", getWidth()/2, getHeight()/2);
+        }
+        if(lose){
+            g.drawString("Game Over!", getWidth()/2, getHeight()/2);
+        }
     }
+
 
     private void drawTile(Graphics g,int value,int x,int y) {
         int m=(int) (Math.log(value) / Math.log(2));
