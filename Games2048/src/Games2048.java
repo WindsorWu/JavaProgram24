@@ -12,6 +12,10 @@ public class Games2048 extends JPanel {
     private int[][] grid = new int[SIZE][SIZE];
     private final Random random = new Random();
 
+    private boolean win = false;
+
+    private boolean lose = false;
+
     Games2048(){
         setFocusable(true);
         addKeyListener(new KeyAdapter() {
@@ -95,6 +99,40 @@ public class Games2048 extends JPanel {
         grid = newGrid;
     }
 
+    private void checkGameState(){
+        int cnt=0;
+        for(int row=0; row<SIZE; row++){
+            for(int col=0; col<SIZE; col++){
+                if(grid[row][col] == 2048){
+                    win = true;
+                    break;
+                }
+                else{
+                    if(grid[row][col] != 0){
+                        cnt++;
+                    }
+                }
+            }
+            if(win){
+                break;
+            }
+        }
+        if(!win){
+            if(cnt < SIZE*SIZE){
+                return;
+            }
+            for(int row=0; row<SIZE; row++){
+                for(int col=0; col<SIZE; col++){
+                    if(row<SIZE-1 && grid[row][col] == grid[row+1][col]){
+                        return;
+                    }
+                    if(col<SIZE-1 && grid[row][col] == grid[row][col+1]){
+                        return;
+                    }
+                }
+            }
+        }
+    }
     private void spawnTile() {
         int x;
         int y;
