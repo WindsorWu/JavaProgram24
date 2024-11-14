@@ -1,19 +1,100 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
+import java.util.Arrays;
 import java.util.Random;
 
-// 按两次 Shift 打开“随处搜索”对话框并输入 `show whitespaces`，
-// 然后按 Enter 键。现在，您可以在代码中看到空格字符。
 public class Games2048 extends JPanel {
-    private static final int SIZE=4;
-    private static final int SQUARE_A=100;
-    private final int[][] grid=new int[SIZE][SIZE];
+    private static final int SIZE = 4;
+    private static final int SQUARE_A = 100;
+    private int[][] grid = new int[SIZE][SIZE];
     private final Random random = new Random();
 
     Games2048(){
+        setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                switch (e.getKeyCode()){
+                    case KeyEvent.VK_UP, KeyEvent.VK_W -> moveUP();
+                    case KeyEvent.VK_DOWN, KeyEvent.VK_S -> moveDown();
+                    case KeyEvent.VK_LEFT, KeyEvent.VK_A -> moveLeft();
+                    case KeyEvent.VK_RIGHT, KeyEvent.VK_D -> moveRight();
+                }
+                repaint();
+                spawnTile();
+            }
+        });
         spawnTile();
         spawnTile();
     }
+
+    private void moveLeft(){
+        for(int row=0; row<SIZE; row++){
+            int[] mergedRow = new int[SIZE];
+            Arrays.fill(mergedRow,0);
+            boolean[] alreadyMerged = new boolean[SIZE];
+            Arrays.fill(alreadyMerged,false);
+            int colIndex = 0;
+            for(int col=0; col<SIZE; col++){
+                if (grid[row][col] != 0){
+                    if(colIndex == 0){
+                        mergedRow[colIndex] = grid[row][col];
+                        colIndex++;
+                    }
+                    else {
+                        if(grid[row][col] == mergedRow[colIndex-1]&& !alreadyMerged[colIndex-1]){
+                            mergedRow[colIndex-1] *= 2;
+                            alreadyMerged[colIndex] = true;
+                        }
+                        else {
+                            mergedRow[colIndex] = grid[row][col];
+                            colIndex++;
+                        }
+                    }
+                }
+            }
+            System.arraycopy(mergedRow, 0, grid[row], 0, SIZE);
+        }
+    }
+
+    private void moveRight(){
+        rotateRight();
+        rotateRight();
+        moveLeft();
+        rotateRight();
+        rotateRight();
+    }
+
+    private void moveUP(){
+        rotateRight();
+        rotateRight();
+        rotateRight();
+        moveLeft();
+        rotateRight();
+    }
+
+    private void moveDown(){
+        rotateRight();
+        moveLeft();
+        rotateRight();
+        rotateRight();
+        rotateRight();
+    }
+
+    private void rotateRight(){
+        int[][] newGrid = new int[SIZE][SIZE];
+        for(int row=0; row<SIZE; row++){
+            for(int col=0; col<SIZE; col++){
+                newGrid[col][SIZE-1-row] = grid[row][col];
+            }
+        }
+        grid = newGrid;
+    }
+
     private void spawnTile() {
         int x;
         int y;
@@ -29,36 +110,34 @@ public class Games2048 extends JPanel {
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
         g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(0,0,getWidth(),getHeight());
-        for(int row=0;row<4;row++){
-            for(int col=0;col<4;col++){
-                drawTile(g,grid[row][col],col*SQUARE_A,row*SQUARE_A);
-                //g.setColor(Color.black);
-                //g.drawRect(row*10,col*10,100,120);
+        g.fillRect(0, 0, getWidth(),getHeight());
+        for(int row = 0;row<4;row++){
+            for(int col = 0;col<4;col++){
+                drawTile(g,grid[row][col], col*SQUARE_A, row*SQUARE_A);
             }
         }
 
     }
 
     private void drawTile(Graphics g,int value,int x,int y) {
-        int m=(int) (Math.log(value)/Math.log(2));
-        g.setColor(value==0?Color.GRAY:new Color(255-m*20,240,200));
-        g.fillRect(x,y,SQUARE_A,SQUARE_A);
+        int m=(int) (Math.log(value) / Math.log(2));
+        g.setColor(value == 0 ? Color.GRAY : new Color(255-m*20, 240, 200));
+        g.fillRect(x, y, SQUARE_A, SQUARE_A);
         g.setColor(Color.BLACK);
-        g.drawRect(x,y,SQUARE_A,SQUARE_A);
+        g.drawRect(x, y, SQUARE_A, SQUARE_A);
 
         if(value!=0) {
-            FontMetrics fontMetrics=g.getFontMetrics();
-            int textX=x+(SQUARE_A-fontMetrics.stringWidth(String.valueOf(value)))/2;
-            int textY=y+(SQUARE_A-fontMetrics.getHeight())/2+fontMetrics.getAscent();
-            g.drawString(String.valueOf(value),textX,textY);
+            FontMetrics fontMetrics = g.getFontMetrics();
+            int textX = x + (SQUARE_A - fontMetrics.stringWidth(String.valueOf(value))) / 2;
+            int textY = y + (SQUARE_A - fontMetrics.getHeight()) / 2+fontMetrics.getAscent();
+            g.drawString(String.valueOf(value), textX, textY);
         }
     }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("2048 Games");
         Games2048 games2048 = new Games2048();
-        frame.setSize(420,460);
+        frame.setSize(420, 460);
         frame.add(games2048);
         frame.setVisible(true);
     }
