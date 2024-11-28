@@ -1,12 +1,21 @@
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
         File f = new File("text.txt");
         if(f.exists())
             System.out.println(f.getName() + " " + "文件存在");
-        else
+        else {
             System.out.println(f.getName() + " " + "文件不存在");
+            try {
+                f.createNewFile();
+            }
+            catch (IOException e){
+                System.out.println("创建文件异常");
+                e.printStackTrace();
+            }
+        }
         System.out.println(f.canRead());
         System.out.println(f.canWrite());
         System.out.println(f.canExecute());
